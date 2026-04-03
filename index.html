@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Creative Review Studio</title>
+  <link rel="stylesheet" href="./css/app.css" />
+</head>
+<body>
+<div class="app">
+
+  <!-- ============================
+       HEADER
+  ============================ -->
+  <div id="header">
+    <h1>Creative <span>Review Studio</span></h1>
+
+    <input
+      id="url-input"
+      type="text"
+      placeholder="Paste showcase URL — generic or CCRV..."
+      autocomplete="off"
+      spellcheck="false"
+    />
+    <button id="load-btn">Load</button>
+
+    <div id="variation-wrap">
+      <span>Variation:</span>
+      <select id="variation-select"></select>
+    </div>
+
+    <button id="compare-toggle">Compare Mode</button>
+    <span id="compare-count"></span>
+  </div>
+
+  <!-- ============================
+       TOOLBAR
+  ============================ -->
+  <div id="toolbar">
+    <span id="status-bar-text" class="status-text">Paste a showcase URL to get started.</span>
+    <span id="campaign-name"></span>
+
+    <div class="platform-filters">
+      <button class="platform-btn active" data-platform="all">All</button>
+      <button class="platform-btn" data-platform="desktop">Desktop</button>
+      <button class="platform-btn" data-platform="mobile">Mobile</button>
+    </div>
+
+    <div id="zoom-control">
+      Zoom
+      <input type="range" id="zoom-slider" min="20" max="100" value="50" />
+      <span id="zoom-value">50%</span>
+    </div>
+  </div>
+
+  <!-- ============================
+       MAIN CONTENT
+  ============================ -->
+  <div id="content">
+
+    <!-- Grid -->
+    <div id="grid">
+      <div id="empty-state">
+        <div class="icon">🎨</div>
+        <h3>Creative Review Studio</h3>
+        <p>Paste a showcase URL above to load all ad sizes.</p>
+        <p style="margin-top:6px;font-size:12px;color:#a0aec0;">
+          Supports generic showcase and CCRV revision links.
+        </p>
+      </div>
+    </div>
+
+    <!-- Compare view -->
+    <div id="compare-view">
+      <div class="compare-empty">
+        Enable Compare Mode, then select up to 3 sizes using the checkboxes on each card.
+      </div>
+    </div>
+
+    <!-- QA Panel (slide-in) -->
+    <div id="qa-panel"></div>
+
+  </div>
+</div>
+
+<script type="module">
+  import { init } from "./js/app.js";
+  init();
+</script>
+</body>
+</html>
