@@ -47,7 +47,7 @@ export function parseShowcaseUrl(url) {
  * @param {object} parsed — result of parseShowcaseUrl
  * @returns {Promise<object>} — full CCRV response
  */
-const EXT_ID = "bommcjmbdogmhleeiijochpjojhamold"; // paste from chrome://extensions
+
 
 export async function fetchCCRV(parsed) {
   let url = `https://showcase.vdx.tv/api/cs/ccrv?hash=${encodeURIComponent(parsed.fullHash)}`;
@@ -56,19 +56,33 @@ export async function fetchCCRV(parsed) {
     url += `&variation=${encodeURIComponent(parsed.variation)}`;
   }
 
-  return new Promise((resolve, reject) => {
-    chrome.runtime.sendMessage(EXT_ID, { type: "FETCH_CCRV", url }, (response) => {
-      if (chrome.runtime.lastError) {
-        reject(new Error("Extension not reachable — is Creative QC Tool installed and active?"));
-        return;
-      }
-      if (!response?.success) {
-        reject(new Error(response?.error || "FETCH_CCRV failed"));
-        return;
-      }
-      resolve(response.data);
+  const EXT_ID = "bommcjmbdogmhleeiijochpjojhamold"; // paste from chrome://extensions
+
+  function tryMessage() {
+    return new Promise((resolve, reject) => {
+      chrome.runtime.sendMessage(EXT_ID, { type: "FETCH_CCRV", url }, (response) => {
+        if (chrome.runtime.lastError) {
+          reject(new Error(chrome.runtime.lastError.message));
+          return;
+        }
+        if (!response?.success) {
+          reject(new Error(response?.error || "FETCH_CCRV failed"));
+          return;
+        }
+        resolve(response.data);
+      });
     });
-  });
+  }
+
+  // First attempt — may wake the service worker
+  try {
+    return await tryMessage();
+  } catch (e) {
+    if (!e.message.includes("Receiving end does not exist")) throw e;
+    // SW was sleeping — wait 500ms and retry once
+    await new Promise(r => setTimeout(r, 500));
+    return await tryMessage();
+  }
 }
 
 /**
