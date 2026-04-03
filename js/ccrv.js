@@ -47,19 +47,28 @@ export function parseShowcaseUrl(url) {
  * @param {object} parsed — result of parseShowcaseUrl
  * @returns {Promise<object>} — full CCRV response
  */
+const EXT_ID = "bommcjmbdogmhleeiijochpjojhamold"; // paste from chrome://extensions
+
 export async function fetchCCRV(parsed) {
-  if (!parsed) throw new Error("Invalid showcase URL");
-
-  let url = `${CCRV_API_BASE}?hash=${encodeURIComponent(parsed.fullHash)}`;
-
+  let url = `https://showcase.vdx.tv/api/cs/ccrv?hash=${encodeURIComponent(parsed.fullHash)}`;
   if (parsed.type === "ccrv") {
     url += `&revision=${encodeURIComponent(parsed.revision)}`;
     url += `&variation=${encodeURIComponent(parsed.variation)}`;
   }
 
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`CCRV API error: ${res.status}`);
-  return res.json();
+  return new Promise((resolve, reject) => {
+    chrome.runtime.sendMessage(EXT_ID, { type: "FETCH_CCRV", url }, (response) => {
+      if (chrome.runtime.lastError) {
+        reject(new Error("Extension not reachable — is Creative QC Tool installed and active?"));
+        return;
+      }
+      if (!response?.success) {
+        reject(new Error(response?.error || "FETCH_CCRV failed"));
+        return;
+      }
+      resolve(response.data);
+    });
+  });
 }
 
 /**
